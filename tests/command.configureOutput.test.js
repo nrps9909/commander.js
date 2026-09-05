@@ -351,7 +351,7 @@ describe('Command.configureOutput()', () => {
         delete process.env[envvar];
       }
     });
-    t.afterEach(() => {
+    t.after(() => {
       for (const [envvar, value] of originalEnv) {
         if (value === undefined) delete process.env[envvar];
         else process.env[envvar] = value;
