@@ -342,18 +342,30 @@ describe('Command.configureOutput()', () => {
       ['FORCE_COLOR', true],
       ['CLICOLOR_FORCE', true],
     ];
+    const originalEnv = testCases.map(([envvar]) => [
+      envvar,
+      process.env[envvar],
+    ]);
+    t.beforeEach(() => {
+      for (const [envvar] of originalEnv) {
+        delete process.env[envvar];
+      }
+    });
+    t.afterEach(() => {
+      for (const [envvar, value] of originalEnv) {
+        if (value === undefined) delete process.env[envvar];
+        else process.env[envvar] = value;
+      }
+    });
     for (const [envvar, expected] of testCases) {
       await t.test(
         `when ${envvar} then getFooHasColors returns ${expected}`,
         () => {
           // Would like to vary process.istty too, but too hard, so tests here provide only partial cover.
-          const holdEnv = process.env[envvar];
           process.env[envvar] = '1';
           const config = new commander.Command().configureOutput();
           assert.equal(config.getOutHasColors(), expected);
           assert.equal(config.getErrHasColors(), expected);
-          if (holdEnv === undefined) delete process.env[envvar];
-          else process.env[envvar] = holdEnv;
         },
       );
     }
